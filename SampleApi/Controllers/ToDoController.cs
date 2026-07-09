@@ -52,6 +52,24 @@ public class ToDoController : ControllerBase
         return Ok(item);
     }
 
+    [HttpPut("{id}")]
+
+    public ActionResult<ToDoItem> Update(int id, UpdateTodoRequest request)
+    {
+        var item = _todos.FirstOrDefault(t => t.Id == id);
+        if (item == null)
+            return NotFound();
+
+        item.Title = request.Title;
+        item.IsDone = request.IsDone;
+
+
+        return Ok(item);
+    }
 
 }
+
+
+
+
 
