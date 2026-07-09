@@ -67,6 +67,17 @@ public class ToDoController : ControllerBase
         return Ok(item);
     }
 
+    [HttpDelete("{id}")]
+    public ActionResult<ToDoItem> Delete(int id)
+    {
+        var item = _todos.FirstOrDefault(t => t.Id == id);
+        if(item == null)
+            return NotFound();
+
+        _todos.Remove(item);
+        return Ok("Deleted.");
+    }
+
 }
 
 
