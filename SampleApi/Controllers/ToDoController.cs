@@ -23,6 +23,20 @@ public class ToDoController : ControllerBase
         return Ok(_todos);
     }
 
+    [HttpGet("{id}")]
+    public ActionResult<ToDoItem> GetById(int id)
+    {
+        var item = _todos.FirstOrDefault(t => t.Id == id);
+
+        if (item == null)
+        {
+            return BadRequest("Not Found");
+        }
+
+        return Ok(item);
+
+    }
+
     [HttpPost]
     public IActionResult Create(CreateTodoRequest request)
     {
