@@ -30,7 +30,7 @@ public class ToDoController : ControllerBase
 
         if (item == null)
         {
-            return BadRequest("Not Found");
+            return NotFound();
         }
 
         return Ok(item);
@@ -75,7 +75,7 @@ public class ToDoController : ControllerBase
             return NotFound();
 
         _todos.Remove(item);
-        return Ok("Deleted.");
+        return NoContent();
     }
 
 }
