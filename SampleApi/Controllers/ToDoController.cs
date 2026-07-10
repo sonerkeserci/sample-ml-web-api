@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SampleApi.Models;
 using SampleApi.Requests;
+using SampleApi.Services;
 
 namespace SampleApi.Controllers;
 
@@ -8,61 +9,43 @@ namespace SampleApi.Controllers;
 [Route("api/[controller]")]
 public class ToDoController : ControllerBase
 {
-    private static List<ToDoItem> _todos = new List<ToDoItem>
+    private readonly TodoService _todoService;
+    public ToDoController(TodoService todoService)
     {
-        new ToDoItem { Id = 1, Title = "Sample ToDo", IsDone = true },
-
-        new ToDoItem { Id = 2, Title = "Sample ToDo 2", IsDone = false }
-    };
+        _todoService = todoService;
+    }
 
 
     [HttpGet]
     public IActionResult Get()
     {
-
-        return Ok(_todos);
+        return Ok(_todoService.GetAll());
     }
 
     [HttpGet("{id}")]
     public ActionResult<ToDoItem> GetById(int id)
     {
-        var item = _todos.FirstOrDefault(t => t.Id == id);
-
-        if (item == null)
-        {
+        var item = _todoService.GetById(id);
+        if (item == null) 
             return NotFound();
-        }
 
         return Ok(item);
-
     }
 
     [HttpPost]
     public IActionResult Create(CreateTodoRequest request)
     {
-        var item = new ToDoItem
-        {
-            Id = _todos.Count + 1,
-            Title = request.Title,
-            IsDone = request.IsDone
-        };
 
-        _todos.Add(item);
-
-        return Ok(item);
+        return Ok(_todoService.Create(request));
     }
 
     [HttpPut("{id}")]
 
     public ActionResult<ToDoItem> Update(int id, UpdateTodoRequest request)
     {
-        var item = _todos.FirstOrDefault(t => t.Id == id);
+        var item = _todoService.Update(id, request);
         if (item == null)
             return NotFound();
-
-        item.Title = request.Title;
-        item.IsDone = request.IsDone;
-
 
         return Ok(item);
     }
@@ -70,11 +53,11 @@ public class ToDoController : ControllerBase
     [HttpDelete("{id}")]
     public ActionResult<ToDoItem> Delete(int id)
     {
-        var item = _todos.FirstOrDefault(t => t.Id == id);
-        if(item == null)
+        var deleted = _todoService.Delete(id);
+
+        if(!deleted)
             return NotFound();
 
-        _todos.Remove(item);
         return NoContent();
     }
 
