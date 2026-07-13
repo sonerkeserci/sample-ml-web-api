@@ -1,56 +1,66 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using SampleApi.Models;
+﻿using SampleApi.Models;
 using SampleApi.Requests;
+using SampleApi.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace SampleApi.Services
 {
     public class TodoService
     {
-        private static List<ToDoItem> _todos = new List<ToDoItem> {
-            new ToDoItem { Id = 1, Title = "Sample ToDo", IsDone = true },
-            new ToDoItem { Id = 2, Title = "Sample ToDo 2", IsDone = false }
-        };
-
-        public List<ToDoItem> GetAll()
+        private readonly AppDbContext _dbContext;
+        public TodoService(AppDbContext dbContext)
         {
-            return _todos;
+            _dbContext = dbContext;
         }
 
-        public ToDoItem? GetById(int id)
+        // "async" indicates that this method is asynchronous.
+        // There is a process within this method that may take some time to complete, and I will wait for it using "await".
+        public async Task<List<ToDoItem>> GetAll()      // "Task" indicates that this method will return a list of ToDoItem objects when awaited
         {
-            return _todos.FirstOrDefault(t => t.Id == id);
+            return await _dbContext.ToDoItems.ToListAsync();    // Fetch all ToDoItems from the database
+                                                                // SELECT * FROM ToDoItems;
         }
 
-        public ToDoItem Create(CreateTodoRequest request)
+        public async Task<ToDoItem?> GetById(int id)   
+        {
+            return await _dbContext.ToDoItems.FindAsync(id);    // SELECT * FROM ToDoItems WHERE Id =id;
+                                                                // If the item with the specified id is not found, it will return null, otherwise it will return the ToDoItem object
+                                                                // The "?" after ToDoItem indicates that this method may return a null value
+        }
+
+        public async Task<ToDoItem> Create(CreateTodoRequest request)
         {
             var item = new ToDoItem
             {
-                Id = _todos.Count + 1,
                 Title = request.Title,
                 IsDone = request.IsDone
             };
 
-            _todos.Add(item);
+            _dbContext.ToDoItems.Add(item);         // Add the new ToDoItem to the database context but not yet saved to the database
+            await _dbContext.SaveChangesAsync();    // Save the changes to the database
             return item;
         }
 
-        public ToDoItem? Update(int id, UpdateTodoRequest request)
+        public async Task<ToDoItem?> Update(int id, UpdateTodoRequest request)
         {
-            var item = _todos.FirstOrDefault(t => t.Id == id);
-            if (item== null)
+            var item = await _dbContext.ToDoItems.FindAsync(id);
+            if (item == null)
                 return null;
 
             item.Title = request.Title;
             item.IsDone = request.IsDone;
+
+            await _dbContext.SaveChangesAsync();
             return item;
         }
 
-        public bool Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-            var item = _todos.FirstOrDefault(t => t.Id == id);
+            var item = await _dbContext.ToDoItems.FindAsync(id);
             if (item == null)
                 return false;
-            _todos.Remove(item);
+            _dbContext.ToDoItems.Remove(item);
+            await _dbContext.SaveChangesAsync();
             return true;
         }
 

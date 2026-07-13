@@ -17,15 +17,16 @@ public class ToDoController : ControllerBase
 
 
     [HttpGet]
-    public IActionResult Get()
+    public async Task<ActionResult<List<ToDoItem>>> Get()
     {
-        return Ok(_todoService.GetAll());
+        var items = await _todoService.GetAll();
+        return Ok(items);
     }
 
     [HttpGet("{id}")]
-    public ActionResult<ToDoItem> GetById(int id)
+    public async Task<ActionResult<ToDoItem>> GetById(int id)
     {
-        var item = _todoService.GetById(id);
+        var item = await _todoService.GetById(id);
         if (item == null) 
             return NotFound();
 
@@ -33,17 +34,17 @@ public class ToDoController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Create(CreateTodoRequest request)
+    public async Task<ActionResult> Create(CreateTodoRequest request)
     {
-
-        return Ok(_todoService.Create(request));
+        var item = await _todoService.Create(request);
+        return Ok(item);
     }
 
     [HttpPut("{id}")]
 
-    public ActionResult<ToDoItem> Update(int id, UpdateTodoRequest request)
+    public async Task<ActionResult<List<ToDoItem>>> Update(int id, UpdateTodoRequest request)
     {
-        var item = _todoService.Update(id, request);
+        var item = await _todoService.Update(id, request);
         if (item == null)
             return NotFound();
 
@@ -51,9 +52,9 @@ public class ToDoController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public ActionResult<ToDoItem> Delete(int id)
+    public async Task<ActionResult<List<ToDoItem>>> Delete(int id)
     {
-        var deleted = _todoService.Delete(id);
+        var deleted = await _todoService.Delete(id);
 
         if(!deleted)
             return NotFound();
