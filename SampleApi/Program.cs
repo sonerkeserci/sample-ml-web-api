@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SampleApi.Data;
 using SampleApi.ML;
 using SampleApi.Services;
+using Microsoft.Extensions.ML;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,25 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<TodoService>();
+
+
+/* Training scope */
+var modelPath = Path.Combine(
+    AppContext.BaseDirectory,
+    "ML",
+    "Models",
+    "complaint-model.zip");
+
+builder.Services
+    .AddPredictionEnginePool<ComplaintData, ComplaintPrediction>()
+    .FromFile(
+        modelName: "ComplaintModel",
+        filePath: modelPath,
+        watchForChanges: true);
+
+builder.Services.AddScoped<ComplaintModelService>();
+
+
 
 
 var app = builder.Build();
