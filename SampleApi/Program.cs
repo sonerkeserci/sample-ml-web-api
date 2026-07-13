@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SampleApi.Data;
+using SampleApi.ML;
 using SampleApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,8 @@ builder.Services.AddScoped<TodoService>();
 
 
 var app = builder.Build();
+
+// ComplaintModelTrainer.Train();  // Train the ML model when the application starts for once. You can comment this line after the first run to avoid retraining the model every time the application starts.
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
