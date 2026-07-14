@@ -41,7 +41,9 @@ builder.Services.AddScoped<ComplaintModelService>();
 
 var app = builder.Build();
 
-// ComplaintModelTrainer.Train();  // Train the ML model when the application starts for once. You can comment this line after the first run to avoid retraining the model every time the application starts.
+// Train the ML model when the application starts for once. You can comment this line after the first run to avoid retraining the model every time the application starts.
+// ComplaintModelTrainer.Train();  
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
